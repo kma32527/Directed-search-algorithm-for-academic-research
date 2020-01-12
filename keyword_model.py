@@ -12,6 +12,7 @@ from nltk.stem import PorterStemmer
 from scipy import spatial
 import plos_preprocess as plos
 
+#PorteerStemmer used for lemmatization of words 
 stemmer = PorterStemmer()
 stopwords=set(stopwords.words('english'))
 stopwords=[word for word in stopwords]
@@ -48,6 +49,7 @@ def postokens(text):
     tokens=nltk.pos_tag(wt(text))
     return [stemmer.stem(token[0].strip()) for token in tokens if len(token[0])>1 and token[1][0] in goodpos and not token[0] in stopwords]
 
+#returns the n most frequent words across the corpus
 def corpuswc(data, n):
     text=concat(data)
     freqs = FreqDist(postokens(text))
@@ -79,12 +81,10 @@ def concat(text_list):
         cat_text+=text
     return cat_text
 
-#receives text input and a maximal size for n-grams
-#numgram is the maximal size of n for n-grams
-#outputs frequencies across ngrams
-def ngramcounts(tokens, n):
+#Returns a list of ngrams by count of a given size 
+def ngramcounts(tokens, gram_size):
     freqs={}
-    ngrams=nltk.ngrams(tokens,n)
+    ngrams=nltk.ngrams(tokens,gram_size)
     for ngram in ngrams:
         gram=" ".join(ngram)
         if gram in freqs:
@@ -93,8 +93,7 @@ def ngramcounts(tokens, n):
             freqs[gram]=1
     return freqs
 
-#Creates a map consisting of word stems and a list of possible ngrams associated with the stem
-#Returned map is of the form [stem]:([ngram including stem]:[count])
+#Creates a map consisting of word stems and a list of valid ngrams associated with the stem
 def makefeatmap(text_list, word_counts, gram_size, n_features):
     top_words=[entry[0] for entry in word_counts]
     if gram_size<2:
@@ -121,7 +120,7 @@ def extractfeat(text, feature_map, gram_size):
             vector.append(0)
     return vector
 
-
+#Returns the indeces of the n nearest most relevant articles found in the corpus
 def findnearestn(rep, corpus_reps, n):
     distances=list()
     for i in range(len(corpus_reps)):
@@ -131,6 +130,7 @@ def findnearestn(rep, corpus_reps, n):
         distmap[str(index)]= -distances[index]
     return topncounts(distmap, n)
 
+#takes input text and prints the n most relevant articles
 def printnearestn(input_text, n, corpus_titles, corpus_abstracts, feature_map, corpus_reps):
     gram_size=len(feature_map[0].split())
     if n>len(corpus_reps):
@@ -151,10 +151,13 @@ def printnearestn(input_text, n, corpus_titles, corpus_abstracts, feature_map, c
         print('------')
         try:
             print('Abstract:')
-#            print(dbabstracts[index])
+            print(dbabstracts[index])
         except:
             print('No abstract available.')
 
+#Creates a model from input parameters
+#feature_map is an array of ngrams
+#feature_reps consists of the bag of words representations of all articles in the corpus  
 def corpusmodel(clean_texts, n_words, n_features, gram_size):
     word_counts=corpuswc(clean_texts, n_words)
     feature_map=makefeatmap(clean_texts, word_counts, gram_size, n_features)
@@ -163,11 +166,13 @@ def corpusmodel(clean_texts, n_words, n_features, gram_size):
         feature_reps.append(extractfeat(clean_texts[i], feature_map, gram_size))
     return feature_map, feature_reps
 
+#Returns all valid ngrams associated with a word
 def peekgrams(feature_map, word):
     stem=stemmer.stem(word.lower().strip())
     if stem in feature_map:
         return feature_map[stem]
 
+#Prints the ngrams associated to non-zero elements of a feature vector
 def printcontents(feature_map, vector):
     for i in range(len(vector)):
         if vector[i]>0:
