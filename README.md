@@ -37,7 +37,7 @@ Academia is particularly well-suited to text analysis since
 
 - arxiv_tests.py
 
-  - Model tests on arxiv ML abstracts
+  - Model tests on arXiv ML abstracts
 
 - ploss_tests.py
 
