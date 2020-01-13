@@ -1,14 +1,24 @@
 # Recommender System for Academic Literature
-This is an ongoing experiment in using text mining on academic literature. The eventual goal is to develop a tool for efficiently exploring academic literature and idetifying interdisciplinary research connections. In particular, I pose as a question
+This is an ongoing experiment in using text mining on academic literature. The eventual goal is to develop a tool for efficiently exploring academic literature and idetifying interdisciplinary research connections. I believe this has potential to identify subtle trends that would otherwise go unnoticed.
 
-What research connections can be drawn by analyzing the use of academic terminology across disciplines? 
+Academia is particularly well-suited to text analysis since
 
-# Challenges
-- Need a way to assess the quality of the results, since doing so manually requires a high degree of domain specialization.
+1) Texts tend to be formatted and spell-checked
+
+2) Academic papers tend to follow a predictable structure
+
+3) Terminology is mostly standardized (within disciplines)
+
+4) There are many, many more research papers than any individual or group can parse through
+
+In addition, this allows for what is quite possibly the most literal interpretation of the phrase "machine learning".
+
+# Current plan
+- Find a way to assess the quality of the results, since doing so manually requires a high degree of domain specialization.
 
 - Assess the generalizability to arbitrary research disciplines
 
-- Currently doesn't account for location in text that words are found. This is intentional since the goal is to develop a framework to model research intuition, but planning on running tests
+- Test abstractive feature extraction methods
 
 # Files
 
