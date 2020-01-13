@@ -20,20 +20,5 @@ This is an experiment in using text mining on academic literature in a prospecti
 
 - autoencoder.py
 
-  - Script to test the use of an autoencoder for improving feature extraction
+  - Autoencoder tests
 
-  - Can be interpreted as "studying the material through core concepts and keywords"
-  
-  - Looking into: Can these be used to model different research "perspectives" given a set of keywords? 
-
-- arxiv_tests.py
-
-  - Model tests on arXiv ML abstracts
-
-- ploss_tests.py
-
-  - Model tests on PLOSS articles from the category of computational biology
-  
-- arxiv_feat_test.py
-
-  - Script to test different feature extraction techniques
