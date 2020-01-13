@@ -12,7 +12,7 @@ Academia is particularly well-suited to text analysis since
 4) There are many, many more research papers than any individual or group can parse through
 
 
-# Current plan
+# Current focus
 - Find a way to assess the quality of the results, since doing so manually requires a high degree of domain specialization.
 
 - Assess the generalizability to arbitrary research disciplines
