@@ -1,5 +1,5 @@
 # Recommender System for Academic Literature
-This is an ongoing experiment in using text mining on academic literature. The eventual goal is to develop a tool for researchers to use to identify prospective research focuses.
+This is an ongoing experiment in using text mining on academic literature. The eventual goal is to develop a tool for efficiently exploring academic literature and idetifying interdisciplinary research connections.
 
 # Files
 
