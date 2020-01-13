@@ -22,20 +22,24 @@ In addition, this allows for what is quite possibly the most literal interpretat
 
 # Files
 
-plos_preprocess.py
+- plos_preprocess.py
 
--Package to extract and clean PLOS .xml articles.
+  - Package to extract and clean PLOS .xml articles.
 
-keyword_model.py
+- keyword_model.py
 
--Package to extract bag of words from text data.
+  - Package to extract bag of words from text data.
 
-autoencoder.py
+- autoencoder.py
 
--script to test the use of an autoencoder for improving feature extraction
+  - script to test the use of an autoencoder for improving feature extraction
 
--can be interpreted as "studying the material through core concepts and keywords"
+  - can be interpreted as "studying the material through core concepts and keywords"
 
-lsa.py
+- arxiv_tests.py
 
--Implementation of latent semantic analysis
+  - model tests on arxiv ML abstracts
+
+- ploss_tests.py
+
+  - model tests on PLOSS articles from the category of computational biology
