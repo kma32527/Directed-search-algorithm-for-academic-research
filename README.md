@@ -23,7 +23,7 @@ Academia is particularly well-suited to text analysis since
 
 - plos_preprocess.py
 
-  - Package to extract and clean PLOS .xml articles.
+  - Package to extract and clean text from PLOS .xml files.
 
 - keyword_model.py
 
