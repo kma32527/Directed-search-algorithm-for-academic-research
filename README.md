@@ -1,5 +1,5 @@
 # Recommender System for Academic Literature
-This is an ongoing experiment in using text mining on academic literature. The eventual goal is to develop a tool for identifying novel interdisciplinary research connections. I use an extractive, keyword-based approach in an attempt to pick up on latent terminological trends.
+This is an experiment in using text mining on academic literature in a prospective manner. The eventual goal is to develop a tool for identifying novel interdisciplinary connections. I extract keyword-like features from research documents to pick up on latent terminological trends.
 
 # Current focus
 - Find a way to reliably assess the quality of the results, since doing so manually requires a high degree of domain specialization.
