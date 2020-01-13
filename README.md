@@ -1,5 +1,5 @@
 # Recommender System for Academic Literature
-This is an ongoing experiment in using text mining on academic literature. The eventual goal is to develop a tool for efficiently exploring academic literature and idetifying interdisciplinary research connections. I believe this has potential to identify subtle trends that would otherwise go unnoticed.
+This is an ongoing experiment in using text mining on academic literature. The eventual goal is to develop a tool for efficiently exploring academic literature and idetifying interdisciplinary research connections. I believe this has potential to identify subtle trends free of acaademic bias that would otherwise go unnoticed.
 
 Academia is particularly well-suited to text analysis since
 
@@ -11,7 +11,6 @@ Academia is particularly well-suited to text analysis since
 
 4) There are many, many more research papers than any individual or group can parse through
 
-In addition, this allows for what is quite possibly the most literal interpretation of the phrase "machine learning".
 
 # Current plan
 - Find a way to assess the quality of the results, since doing so manually requires a high degree of domain specialization.
@@ -32,14 +31,14 @@ In addition, this allows for what is quite possibly the most literal interpretat
 
 - autoencoder.py
 
-  - script to test the use of an autoencoder for improving feature extraction
+  - Script to test the use of an autoencoder for improving feature extraction
 
-  - can be interpreted as "studying the material through core concepts and keywords"
+  - Can be interpreted as "studying the material through core concepts and keywords"
 
 - arxiv_tests.py
 
-  - model tests on arxiv ML abstracts
+  - Model tests on arxiv ML abstracts
 
 - ploss_tests.py
 
-  - model tests on PLOSS articles from the category of computational biology
+  - Model tests on PLOSS articles from the category of computational biology
