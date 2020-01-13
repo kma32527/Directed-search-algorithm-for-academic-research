@@ -9,7 +9,7 @@ plos_preprocess.py
 
 keyword_model.py
 
--Package to extract word and ngram frequency frequency representations from text data.
+-Package to extract bag of words from text data.
 
 autoencoder.py
 
