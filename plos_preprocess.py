@@ -141,7 +141,7 @@ def getallabs(path, max_files):
             clean_abstracts.append(cleaned)
     return titles, raw_abstracts, clean_abstracts
 
-# path='./quant_bio/'
+# path='./pcbi/'
 # titles, raw_abstracts, clean_abstracts=getAllAbstractData(path)
 # print(titles[1])
 # print('-------------------------------')
