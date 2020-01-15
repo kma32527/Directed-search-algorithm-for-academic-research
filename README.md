@@ -15,3 +15,6 @@ This is an experiment in using text mining on academic literature in a prospecti
 
   - Autoencoder tests
 
+- lsa.py
+  - Topic modelling using LSA
+
