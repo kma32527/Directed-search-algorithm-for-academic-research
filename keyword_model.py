@@ -1,6 +1,7 @@
 ##Algorithm functions
 
 import re
+import json
 import math
 from os import listdir
 from os.path import isfile, join
@@ -10,9 +11,9 @@ from nltk.probability import FreqDist
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 from scipy import spatial
-import plos_preprocess as plos
+#import plos_preprocess as plos
 
-#PorteerStemmer used for lemmatization of words 
+#PorterStemmer used for lemmatization of words 
 stemmer = PorterStemmer()
 stopwords=set(stopwords.words('english'))
 stopwords=[word for word in stopwords]
@@ -26,6 +27,20 @@ stopwords.append('dnn')
 stopwords.append('cnn')
 stopwords.append('survey')
 stopwords.append('review')
+
+#Loads arXiv abstracts
+def load_arxiv(*args):
+    with open('C:/Startup/arxiv_abstracts/arxivData.json', 'r') as myfile:
+        arxiv_data=myfile.read()
+    arxiv_data=json.loads(arxiv_data)
+    if len(args)>0 and isinstance(args[0], int):
+        arxiv_data=arxiv_data[:args[0]]
+    abstracts=list()
+    titles=list()
+    for entry in arxiv_data:
+        titles.append(entry['title'])
+        abstracts.append(entry['summary'])
+    return titles, abstracts
 
 # Strips special characters from text and converts to lower case
 def cleantext(paper):
@@ -44,22 +59,51 @@ def cleantext(paper):
 
 #Generates list of terms frequency of nouns, adjectives, adverbs, and verbs from the set of all papers
 #Returns the n most frequent terms
-def postokens(text):
-    goodpos=['N', 'J', 'R', 'V']
-    tokens=nltk.pos_tag(wt(text))
-    return [stemmer.stem(token[0].strip()) for token in tokens if len(token[0])>1 and token[1][0] in goodpos and not token[0] in stopwords]
+def kmtokens(text, *args):
+    if len(args)==0:
+        tokens=wt(text)
+        return [stemmer.stem(token.strip()) for token in tokens if len(token)>1 and not token in stopwords]
+    if args[0]=='pos':
+        goodpos=['N', 'J', 'R', 'V']
+        tokens=nltk.pos_tag(wt(text))
+        return [stemmer.stem(token[0].strip()) for token in tokens if len(token[0])>1 and not token[0] in stopwords]
 
 #returns the n most frequent words across the corpus
-def corpuswc(data, n):
-    text=concat(data)
-    freqs = FreqDist(postokens(text))
+def corpuswc(data, n, *args):
+    megatext=concat(data)
+    freqs = FreqDist(kmtokens(megatext))
     features=freqs.most_common(n)
     return features
 
+def gettfidf(data, tflist, n):
+    tfidfmap={}
+    dfmap=docfreq(data, tflist)
+    for entry in tflist:
+        word=entry[0]
+        tf=entry[1]
+        df=dfmap[word]
+        tfidfmap[word]=math.log(1/df)*tf
+    return topncounts(tfidfmap,len(tfidfmap))
+
+def docfreq(data, word_counts):
+    dfcounts={}
+    datatokens=list()
+    for text in data:
+        datatokens.append(kmtokens(text))
+    for entry in word_counts:
+        word=entry[0]
+        count=0
+        for i in range(len(datatokens)):
+            if len(datatokens[i])>0:
+                numwords=len(datatokens[i])
+                datatokens[i]=[token for token in datatokens[i] if not token==word]
+                if len(datatokens[i])<numwords:
+                    count+=1
+        dfcounts[word]=count
+    return dfcounts
+
 #Returns the max key by value
 def maxkey(d):
-    """ a) create a list of the dict's keys and values;
-        b) return the key with the max value"""
     v=list(d.values())
     k=list(d.keys())
     return k[v.index(max(v))]
@@ -94,25 +138,33 @@ def ngramcounts(tokens, gram_size):
     return freqs
 
 #Creates a map consisting of word stems and a list of valid ngrams associated with the stem
-def makefeatmap(text_list, word_counts, gram_size, n_features):
+def makefeatmap(text_list, n_features, gram_size):
+    word_counts=corpuswc(text_list, n_features)
     top_words=[entry[0] for entry in word_counts]
-    if gram_size<2:
-        return -1
     text=concat(text_list)
-    tokens=postokens(text)
+    tokens=kmtokens(text)
     tokens=[word for word in tokens if word in top_words]
-    allfreqs=ngramcounts(tokens, gram_size)
+    if gram_size==1:
+        allfreqs={}
+        for entry in word_counts:
+            allfreqs[entry[0]]=entry[1]
+    else:
+        allfreqs=ngramcounts(tokens, gram_size)
     nmax=topncounts(allfreqs, n_features)
-    db_map=[entry[0] for entry in nmax]
-    return db_map
+    feature_map=[entry[0] for entry in nmax]
+    return feature_map
 
 #Constructs a vector representation of input text using the categorical embedding map
-def extractfeat(text, feature_map, gram_size):
+def extractfeat(text, feature_map):
     if len(text)==0:
         return -1
+    tokens=kmtokens(cleantext(text))
+    gram_size=1
+    if gram_size > 1:
+        textgrams=ngramcounts(tokens, gram_size)
+    else:
+        textgrams=tokens    
     vector=list()
-    tokens=postokens(text)
-    textgrams=ngramcounts(tokens, gram_size)
     for gram in feature_map:
         if gram in textgrams:
             vector.append(1)
@@ -121,50 +173,61 @@ def extractfeat(text, feature_map, gram_size):
     return vector
 
 #Returns the indeces of the n nearest most relevant articles found in the corpus
-def findnearestn(rep, corpus_reps, n):
-    distances=list()
+def alldist(rep, corpus_reps, n):
+    dist={}
     for i in range(len(corpus_reps)):
-        distances.append(spatial.distance.hamming(rep, corpus_reps[i]))
-    distmap={}
-    for index in range(len(distances)):
-        distmap[str(index)]= -distances[index]
-    return topncounts(distmap, n)
+        dist[str(i)]=-spatial.distance.cosine(rep, corpus_reps[i])
+    alldists=topncounts(dist, n)
+    for i in range(len(alldists)):
+        alldists[i][1]=-alldists[i][1]
+    return alldists
+
+def getmatches(input_text, corpus_model, n):
+    clean=cleantext(input_text)
+    featmap=corpus_model[0]
+    inputfeat=extractfeat(clean, featmap)
+    return alldist(inputfeat, corpus_model[1], n)
 
 #takes input text and prints the n most relevant articles
-def printnearestn(input_text, n, corpus_titles, corpus_abstracts, feature_map, corpus_reps):
+def printmatches(input_text, corpus_model, n):
+    feature_map=corpus_model[0]
+    corpus_reps=corpus_model[1]
+    corpus_texts=corpus_model[2]
+    corpus_titles=corpus_model[3]
     gram_size=len(feature_map[0].split())
     if n>len(corpus_reps):
         print('Error: n is greater than the total number of files in the database.')
         return -1
-    rep=extractfeat(cleantext(input_text), feature_map, gram_size)
-    matches=findnearestn(rep, corpus_reps, n)
+    matches=getmatches(input_text, corpus_model, n)
     print('----------------------------')
     print('Input text:')
     print(input_text)
     print('----------------------------')
     for i in range(len(matches)):
         index=int(matches[i][0])
-        distance=-matches[i][1]
+        distance=matches[i][1]
         print('----------------------------')
         print('Rank: ' + str(i+1) + ' Index: ' + str(index) + ' Distance=' + str(distance))
         print('Title: ' + corpus_titles[index])
         print('------')
         try:
-            print('Abstract:')
-            print(dbabstracts[index])
+            print('Text:')
+            print(corpus_texts[index])
         except:
             print('No abstract available.')
 
 #Creates a model from input parameters
 #feature_map is an array of ngrams
 #feature_reps consists of the bag of words representations of all articles in the corpus  
-def corpusmodel(clean_texts, n_words, n_features, gram_size):
-    word_counts=corpuswc(clean_texts, n_words)
-    feature_map=makefeatmap(clean_texts, word_counts, gram_size, n_features)
+def corpusmodel(titles, raw_texts, n_features, gram_size):
+    clean_texts=list()
+    for entry in raw_texts:
+        clean_texts.append(cleantext(entry))
+    feature_map=makefeatmap(clean_texts, n_features, gram_size)
     feature_reps=list()
     for i in range(len(clean_texts)):
-        feature_reps.append(extractfeat(clean_texts[i], feature_map, gram_size))
-    return feature_map, feature_reps
+        feature_reps.append(extractfeat(clean_texts[i], feature_map))
+    return [feature_map, feature_reps, raw_texts, titles]
 
 #Returns all valid ngrams associated with a word
 def peekgrams(feature_map, word):
@@ -172,12 +235,29 @@ def peekgrams(feature_map, word):
     if stem in feature_map:
         return feature_map[stem]
 
-#Prints the ngrams associated to non-zero elements of a feature vector
-def printcontents(feature_map, vector):
+def intersection(text1, text2, corpus_model):
+    feature_map=corpus_model[0]
+    common_grams=list()
+    text1=cleantext(text1)
+    text2=cleantext(text2)
+    feat1=getgrams(feature_map, extractfeat(text1, feature_map))
+    feat2=getgrams(feature_map, extractfeat(text2, feature_map))
+    for word in feat1:
+        if word in feat2:
+            common_grams.append(word)
+    return common_grams
+
+#Returns list of ngrams associated to non-zero elements of a feature vector
+def getgrams(feature_map, vector):
+    hasgrams=list()
     for i in range(len(vector)):
         if vector[i]>0:
-            print(feature_map[i])
-
+            hasgrams.append(feature_map[i])
+    return hasgrams
+            
+#titles, abstracts=load_arxiv(100)
+#test=corpusmodel(abstracts, 10, 1, titles)
+#printmatches(abstracts[0], test, 5)
 # path='./quant_bio/'
 # titles, rawabs, cleanabs=plos.getallabs(path,300)
 # featmap, featreps=corpusmodel(cleanabs, 100, 500, 2)
