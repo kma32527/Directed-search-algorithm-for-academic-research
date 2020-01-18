@@ -268,9 +268,3 @@ def getgrams(feature_map, vector):
 #titles, abstracts=load_arxiv(100)
 #test=corpusmodel(abstracts, 10, 1, titles)
 #printmatches(abstracts[0], test, 5)
-# path='./quant_bio/'
-# titles, rawabs, cleanabs=plos.getallabs(path,300)
-# featmap, featreps=corpusmodel(cleanabs, 100, 500, 2)
-# test=0
-# print(titles[test])
-# printnearestn(rawabs[test],10, titles, rawabs,featmap,featreps)
