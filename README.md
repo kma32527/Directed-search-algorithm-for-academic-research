@@ -9,12 +9,9 @@ This is an experiment in using text mining on academic literature in a prospecti
 
 - keyword_model.py
 
-  - Package to extract bag of words from text data.
-
+  - Importable package to extract keyword-features from a collection of texts and model contextual similarities
+  
 - autoencoder.py
 
   - Autoencoder tests
-
-- lsa.py
-  - Topic modelling using LSA
 
