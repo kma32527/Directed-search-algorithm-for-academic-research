@@ -11,7 +11,7 @@ from nltk.probability import FreqDist
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 from scipy import spatial
-#import plos_preprocess as plos
+from sklearn.decomposition import PCA
 
 #PorterStemmer used for lemmatization of words 
 stemmer = PorterStemmer()
@@ -172,11 +172,21 @@ def extractfeat(text, feature_map):
             vector.append(0)
     return vector
 
+#Constructs a vector representation using the model
+def transform(text, corpus_model):
+    feature_map=corpus_model[0][0]
+    lsa=corpus_model[0][1]
+    return lsa.transform([extractfeat(text, feature_map)])
+    
+    
 #Returns the indeces of the n nearest most relevant articles found in the corpus
 def alldist(rep, corpus_reps, n):
     dist={}
     for i in range(len(corpus_reps)):
-        dist[str(i)]=-spatial.distance.cosine(rep, corpus_reps[i])
+        try:
+            dist[str(i)]=-spatial.distance.cosine(rep, corpus_reps[i])
+        except:
+            dist[str(i)]=-10000
     alldists=topncounts(dist, n)
     for i in range(len(alldists)):
         alldists[i][1]=-alldists[i][1]
@@ -184,17 +194,14 @@ def alldist(rep, corpus_reps, n):
 
 def getmatches(input_text, corpus_model, n):
     clean=cleantext(input_text)
-    featmap=corpus_model[0]
-    inputfeat=extractfeat(clean, featmap)
+    inputfeat=transform(clean, corpus_model)
     return alldist(inputfeat, corpus_model[1], n)
 
 #takes input text and prints the n most relevant articles
 def printmatches(input_text, corpus_model, n):
-    feature_map=corpus_model[0]
     corpus_reps=corpus_model[1]
     corpus_texts=corpus_model[2]
     corpus_titles=corpus_model[3]
-    gram_size=len(feature_map[0].split())
     if n>len(corpus_reps):
         print('Error: n is greater than the total number of files in the database.')
         return -1
@@ -227,7 +234,9 @@ def corpusmodel(titles, raw_texts, n_features, gram_size):
     feature_reps=list()
     for i in range(len(clean_texts)):
         feature_reps.append(extractfeat(clean_texts[i], feature_map))
-    return [feature_map, feature_reps, raw_texts, titles]
+    pca=PCA()
+    feature_reps=pca.fit_transform(feature_reps)
+    return [[feature_map, pca], feature_reps, raw_texts, titles]
 
 #Returns all valid ngrams associated with a word
 def peekgrams(feature_map, word):
@@ -235,8 +244,9 @@ def peekgrams(feature_map, word):
     if stem in feature_map:
         return feature_map[stem]
 
+#Returns shared keywords between two texts
 def intersection(text1, text2, corpus_model):
-    feature_map=corpus_model[0]
+    feature_map=corpus_model[0][0]
     common_grams=list()
     text1=cleantext(text1)
     text2=cleantext(text2)
