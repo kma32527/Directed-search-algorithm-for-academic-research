@@ -299,5 +299,5 @@ def getgrams(feature_map, vector):
 ##Tests----------------------------------------
 
 #titles, abstracts=load_arxiv(100)
-#test=corpusmodel(abstracts, 10, 1, titles)
+#test=corpusmodel(titles, abstracts, 10, 1)
 #printmatches(abstracts[0], test, 5)
