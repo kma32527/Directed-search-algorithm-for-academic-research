@@ -35,20 +35,18 @@ class LSI:
     def transform(self, text):
         return self.pca.transform([km.extractfeat(text, self.feature_map)])
     
-    def getmatches(self, input_text, corpus_model, n):
+    def getmatches(self, input_text, n):
         clean=km.cleantext(input_text)
         inputfeat=self.transform(clean)
-        return km.alldist(inputfeat, self.doc_vectors, n)
+        return km.alldist(inputfeat, self.lsi_reps, n)
         
     #takes input text and prints the n most relevant articles
-    def printmatches(self, input_text, corpus_model, n):
+    def printmatches(self, input_text, n):
         corpus_reps=self.feature_map
-        corpus_texts=corpus_model[2]
-        corpus_titles=corpus_model[3]
         if n>len(corpus_reps):
             print('Error: n is greater than the total number of files in the database.')
             return -1
-        matches=km.getmatches(input_text, corpus_model, n)
+        matches=self.getmatches(input_text, n)
         print('----------------------------')
         print('Input text:')
         print(input_text)
@@ -58,11 +56,11 @@ class LSI:
             distance=matches[i][1]
             print('----------------------------')
             print('Rank: ' + str(i+1) + ' Index: ' + str(index) + ' Distance=' + str(distance))
-            print('Title: ' + corpus_titles[index])
+            print('Title: ' + self.database[index].title)
             print('------')
             try:
                 print('Text:')
-                print(corpus_texts[index])
+                print(self.database[index].text)
             except:
                 print('No abstract available.')
                 
@@ -81,7 +79,7 @@ class LSI:
 def main():
     titles, abstracts=km.load_arxiv(100)
     test=LSI(titles, abstracts, 10, 1)
-    print(test.lsi_reps[0])
+    test.printmatches("Hey there", 1)
 
 if __name__=="__main__":
     main()
