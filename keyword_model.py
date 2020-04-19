@@ -13,7 +13,7 @@ from nltk.stem import PorterStemmer
 from scipy import spatial
 from sklearn.decomposition import PCA
 
-#PorterStemmer used for lemmatization of words 
+#PorterStemmer used for stemming of words 
 stemmer = PorterStemmer()
 stopwords=set(stopwords.words('english'))
 stopwords=[word for word in stopwords]
