@@ -65,7 +65,7 @@ class LSI:
                 print('No abstract available.')
                 
     #Returns shared keywords between two texts
-    def intersection(self, text1, text2, corpus_model):
+    def intersection(self, text1, text2):
         common_grams=list()
         text1=km.cleantext(text1)
         text2=km.cleantext(text2)
